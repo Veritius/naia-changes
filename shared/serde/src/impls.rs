@@ -6,3 +6,6 @@ mod scalars;
 mod string;
 mod tuple;
 mod vector;
+
+#[cfg(feature="glam_support")]
+mod glam;

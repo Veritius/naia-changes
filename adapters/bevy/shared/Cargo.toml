@@ -13,8 +13,10 @@ edition = "2021"
 maintenance = { status = "actively-developed" }
 
 [features]
+transform_support = [ "naia-shared/glam_support", "bevy_transform" ]
 
 [dependencies]
 naia-shared = { version = "0.21", path = "../../../shared", features = ["bevy_support", "wbindgen"] }
 bevy_app = { version = "0.10", default-features=false }
 bevy_ecs = { version = "0.10", default-features=false }
+bevy_transform = { version = "0.10", default-features=false, optional=true }

@@ -60,6 +60,15 @@ impl<'b> BitReader<'b> {
         }
         Ok(output)
     }
+
+    pub fn read_bits(&mut self) -> Result<u32, SerdeErr> {
+        let mut output = [0u8; 4];
+        for idx in 0..4 {
+            output[idx] = self.read_byte()?;
+        }
+        // WARNING: THIS IS PROBABLY REALLY BROKEN
+        Ok(u32::from_ne_bytes(output))
+    }
 }
 
 // OwnedBitReader
