@@ -20,6 +20,7 @@ maintenance = { status = "actively-developed" }
 wbindgen = [ "naia-socket-shared/wbindgen", "js-sys" ]
 mquad = [ "naia-socket-shared/mquad" ]
 bevy_support = [ "bevy_ecs" ]
+bevy_transform_support = [ "bevy_transform" ]
 zstd_support = [ "zstd" ]
 glam_support = [ "naia-serde/glam_support" ]
 
@@ -31,4 +32,5 @@ log = { version = "0.4" }
 cfg-if = { version = "1.0" }
 js-sys = { version = "0.3", optional = true }
 bevy_ecs = { version = "0.10", default_features = false, optional = true }
+bevy_transform = { version = "0.10", default-features=false, optional=true }
 zstd = { version = "0.12.2", optional = true }
