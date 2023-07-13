@@ -1,7 +1,9 @@
 //! Trait implementations for glam types.
 
 use glam::{Affine2, Vec2, Vec3, Mat2, Mat3, Mat3A, Vec3A, Affine3A, BVec2, BVec3, BVec3A};
-use crate::{serde::Serde, BitWriter, BitReader};
+use crate::serde::Serde;
+
+// TODO: The length of this file can be reduced significantly with macros.
 
 fn read_f32(reader: &mut crate::BitReader) -> Result<f32, crate::SerdeErr> {
     Ok(f32::from_bits(reader.read_bits()?))
@@ -210,25 +212,26 @@ impl Serde for Mat3A {
 
 #[test]
 fn glam_type_equivalency_test() {
+    use crate::{BitWriter, BitReader};
+    
+    // Checks that T has the same value when it goes through serialisation/deserialisation.
+    // Does not test for endian or other platform-related problem. May also suffer from fails due to floating points even if the bits are the same.
+    // TODO: This should be somewhere else so it can be used in other parts of the code for testing.
+    fn type_equivalency_check<T: Serde + PartialEq + std::fmt::Debug>(test_values: &[T]) {
+        for val in test_values {
+            let mut writer = BitWriter::new();
+            val.ser(&mut writer);
+            let bytes = writer.to_bytes();
+            let mut reader = BitReader::new(&bytes);
+            let output = T::de(&mut reader).expect("Deserialisation failed (impl must be faulty)");
+            assert_eq!(*val, output);
+        }
+    }
+
     // Basically just runs through all the constants, because I can't think of good testing values.
     type_equivalency_check::<Affine2>(&[Affine2::ZERO, Affine2::IDENTITY, Affine2::from_cols_array(&[0.0, 120.0, -15.0, 201423.0, 1019.0, -0.0])]);
     type_equivalency_check::<Affine3A>(&[Affine3A::ZERO, Affine3A::IDENTITY, Affine3A::from_cols_array(&[0.0, 120.0, -15.0, 201423.0, 1019.0, -0.0, 5925.0, 0.000021, 102.0, 20.0, -250.0, -0.000052])]);
     type_equivalency_check::<Vec2>(&[Vec2::ZERO, Vec2::ONE, Vec2::NEG_ONE, Vec2::X, Vec2::Y, Vec2::NEG_X, Vec2::NEG_Y]);
     type_equivalency_check::<Vec3>(&[Vec3::ZERO, Vec3::ONE, Vec3::NEG_ONE, Vec3::X, Vec3::Y, Vec3::Z, Vec3::NEG_X, Vec3::NEG_Y, Vec3::NEG_Z]);
     type_equivalency_check::<Vec3A>(&[Vec3A::ZERO, Vec3A::ONE, Vec3A::NEG_ONE, Vec3A::X, Vec3A::Y, Vec3A::Z, Vec3A::NEG_X, Vec3A::NEG_Y, Vec3A::NEG_Z]);
-}
-
-/// Checks that T has the same value when it goes through serialisation/deserialisation.
-/// 
-/// Does not test for endian or other platform-related problem. May also suffer from fails due to floating points even if the bits are the same.
-// TODO: This should be somewhere else so it can be used in other parts of the code for testing.
-fn type_equivalency_check<T: Serde + PartialEq + std::fmt::Debug>(test_values: &[T]) {
-    for val in test_values {
-        let mut writer = BitWriter::new();
-        val.ser(&mut writer);
-        let bytes = writer.to_bytes();
-        let mut reader = BitReader::new(&bytes);
-        let output = T::de(&mut reader).expect("Deserialisation failed (impl must be faulty)");
-        assert_eq!(*val, output);
-    }
 }
